@@ -1,0 +1,492 @@
+{% extends "layout.twig" %}
+{% block lang %}{{ lang }}{% endblock %}
+{% block content %}
+
+    <div class="startpin-form">
+        <section class="main-content image-background">
+            <div class="container">
+                <link rel="manifest" href="/js/manifests/startpin.json">
+                <script>
+                    let arrText = {
+                        "status-approved": "{{ translate(lang, 'api_response:status_approved')|raw }}",
+                        "status-declined": "{{ translate(lang, 'api_response:status_declined')|raw }}",
+                        "status-cancelled": "{{ translate(lang, 'api_response:status_cancelled')|raw }}",
+                        "status-error": "{{ translate(lang, 'api_response:status_error')|raw }}",
+                        "status-expired": "{{ translate(lang, 'api_response:status_expired')|raw }}",
+                        "status-init": "{{ translate(lang, 'api_response:status_init')|raw }}",
+                        "status-verify": "{{ translate(lang, 'api_response:status_verify')|raw }}",
+                        "success_ticketSent": "{{ translate(lang, 'api_response:success_ticket_sent')|raw }}",
+                        "success_transactionConfirmed": "{{ translate(lang, 'api_response:success_transaction_confirmed')|raw }}",
+                        "error_ticketInvalidEmail": "{{ translate(lang, 'api_response:error_ticket_invalid_email')|raw }}",
+                        "error_ticketNotSent": "{{ translate(lang, 'api_response:error_ticket_not_sent')|raw }}",
+                        "api_error_PAY-0": "{{ translate(lang, 'api_response:api_error_PAY_0')|raw }}",
+                        "api_error_PAY-9001": "{{ translate(lang, 'api_response:api_error_PAY_9001')|raw }}",
+                        "api_error_PAY-9002": "{{ translate(lang, 'api_response:api_error_PAY_9002')|raw }}",
+                        "api_error_PAY-9003": "{{ translate(lang, 'api_response:api_error_PAY_9003')|raw }}",
+                        "api_error_PAY-9004": "{{ translate(lang, 'api_response:api_error_PAY_9004')|raw }}",
+                        "api_error_PAY-9101": "{{ translate(lang, 'api_response:api_error_PAY_9101')|raw }}",
+                        "api_error_PAY-9107": "{{ translate(lang, 'api_response:api_error_PAY_9107')|raw }}",
+                        "api_error_PAY-9108": "{{ translate(lang, 'api_response:api_error_PAY_9108')|raw }}",
+                        "api_error_PAY-9111": "{{ translate(lang, 'api_response:api_error_PAY_9111')|raw }}",
+                        "api_error_PAY-9112": "{{ translate(lang, 'api_response:api_error_PAY_9112')|raw }}"
+                    };
+                    const SAFE_PAY_NL_API_STATUS = '{{ safe_pay_nl_api_status }}';
+                </script>
+                <section id="startpin-content" class="widget widget-startpin-form modern-form-section white-bg">
+                    <section id="startpin-form">
+                        <div class="startpin-body row">
+                            <div class="col-md-4 col-sm-12 small-only-text-center">
+                                <form name="startpin" method="POST">
+                                    <div class="row form-group row-switch">
+                                        <div class="col-xs-12">
+                                            <div class="row">
+                                                <div class="col-xs-4">
+                                                    <div class="input-group-btn" id="language-change-block" {% if toggle == 'false' %} style="display:none;" {% endif %}>
+                                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            {{ lang|upper }}
+                                                            <span class="caret"></span>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-left">
+                                                            {% for langueage in notSelectedLanguages %}
+                                                                <li><a href="#" class="select-language" data-lang="{{ langueage }}">{{ langueage|upper }}</a></li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-8">
+                                                    <label class="switch tiny right" for="startpin-form-checkboxSwitch">
+                                                        {% set strToggleCheck = 'checked="checked"' %}
+                                                        {% set strFieldClass = 'showField' %}
+                                                        {% if toggle is defined and toggle == 'false' %}
+                                                            {% set strToggleCheck = '' %}
+                                                            {% set strFieldClass = 'hideField' %}
+                                                        {% endif %}
+                                                        <input id="startpin-form-checkboxSwitch" type="checkbox" {{ strToggleCheck }}>
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                    <div class="fields right">{{ translate(lang, 'fields:show_all_fields:label') }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12">
+                                            <hr>
+                                        </div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col-xs-12">
+                                            <div class="row">
+                                                {% if toggle is defined and toggle == 'false' %}
+                                                    {% set amountClasses = 'col-md-12 col-xs-6 mobile-full-width' %}
+                                                    {% set colXsPull3 = '' %}
+                                                {% else %}
+                                                    {% set amountClasses = 'col-md-6 col-xs-3 mobile-half-width' %}
+                                                    {% set colXsPull3 = 'col-xs-pull-3' %}
+                                                {% endif %}
+                                                <div class="{{ amountClasses }} row-amount">
+                                                    <label for="amount" class="label-amount">{{ translate(lang, 'fields:amount:label') }}</label>
+                                                    <input type="text" name="amount" id="amount" class="form-control text-right" value="{{ (amount is defined and amount != 0 ) ? amount|number_format(2, ',', '') : '' }}" tabindex="1" pattern="\d+(\.|,\d*)?"/>
+                                                </div>
+                                                <div class="col-md-6 col-xs-3 col-md-push-0 col-xs-push-6 mobile-half-width left-auto row-static-amount {{ strFieldClass }}">
+                                                    <div class="label_txt visible-md visible-lg">&nbsp;</div>
+                                                    <label for="startpin-form-checkboxSwitch2" class="switch tiny right">
+                                                        {% set strToggleCheck = '' %}
+                                                        {% if static_fields is defined and static_fields == 'true' %}
+                                                            {% set strToggleCheck = 'checked="checked"' %}
+                                                        {% endif %}
+                                                        <input id="startpin-form-checkboxSwitch2" type="checkbox" {{ strToggleCheck }} />
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                    <div class="fields right">{{ translate(lang, 'fields:fix_it:label') }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row form-group">
+                                      <div class="col-md-6 col-xs-6 col-md-pull-0 right-auto mobile-full-width row-description">
+                                        <label for="description" class="label-custom">{{ translate(lang, 'fields:description:label') }}</label>
+                                          <input type="text" class="form-control" name="description" id="description" maxlength="32" tabindex="2" value="{{ description }}"/>
+                                      </div>
+                                      <div class="col-md-6 col-xs-6 col-md-pull-0 right-auto mobile-full-width row-order-number">
+                                        <label for="order_number" class="label-custom">{{ translate(lang, 'fields:order_number:label') }}</label>
+                                          <input type="text" class="form-control" name="order_number" id="order_number" maxlength="16" tabindex="3" value="{{ order_number }}"/>
+                                      </div>
+                                    </div>
+                                    <div class="row form-group row-api_token {{ strFieldClass }}">
+                                        <div class="col-lg-12">
+                                            <label for="api_token" class="label-custom">{{ translate(lang, 'fields:api_token:label') }}</label>
+                                            <input type="text" class="form-control" name="api_token" id="api_token" tabindex="4" value="{{ api_token }}"/>
+                                        </div>
+                                    </div>
+                                    <div class="row form-group row-service_id {{ strFieldClass }}">
+                                        <div class="col-lg-12">
+                                            <label for="service_id" class="label-custom">{{ translate(lang, 'fields:service_id:label') }}</label>
+                                            {% set serviceIDsAvailable = serviceIds is defined and serviceIds is not null and serviceIds is iterable and serviceIds|length > 0 %}
+                                            <select name="service_id" id="service_id" class="form-control select2" tabindex="5" {% if serviceIDsAvailable == false %} disabled="disabled"{% endif %}>
+                                                {% if serviceIDsAvailable %}
+                                                    {% for service_id_val in serviceIds %}
+                                                        {% set strSelected = '' %}
+                                                        {% if service_id_val.id == service_id %}
+                                                            {% set strSelected = "selected=selected" %}
+                                                        {% endif %}
+                                                        {{ '<option %s value="%s">%s - %s</option>'|format(strSelected, service_id_val.id, service_id_val.id, service_id_val.name)|raw }}
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <option></option>
+                                                {% endif %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row form-group row-terminal_id {{ strFieldClass }}" {% if activeTab == 'scan' or activeTab == 'qr' %} style="display: none" {% endif %}>
+                                        <div class="col-lg-12">
+                                            <label for="terminal_id" class="label-custom">{{ translate(lang, 'fields:terminal_id:label') }}</label>
+                                            {% set terminalIDsAvailable = terminalIds is defined and terminalIds is not null and terminalIds is iterable and terminalIds|length > 0 %}
+                                            <select name="terminal_id" id="terminal_id" class="form-control select2" tabindex="6" {% if terminalIDsAvailable == false %} disabled="disabled"{% endif %}>
+                                                {% if terminalIDsAvailable %}
+                                                    {% for terminal_id_val in terminalIds %}
+                                                        {% set strSelected = '' %}
+                                                        {% if terminal_id_val.id == default_terminal_id %}
+                                                            {% set strSelected = "selected=selected" %}
+                                                        {% endif %}
+                                                        {{ '<option %s value="%s">%s - %s</option>'|format(strSelected, terminal_id_val.id, terminal_id_val.id, terminal_id_val.name)|raw }}
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <option></option>
+                                                {% endif %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row form-group row-transaction">
+                                        <div class="col-xs-12">
+                                            <div class="row">
+                                                <div class="col-xs-6">
+                                                    <a href="#" id="start-payment"
+                                                       class="btn btn-default btn-custom pink radius"
+                                                       role="button"
+                                                       data-transaction-type="{% if activeTab is empty %}pin{% else %}{{ activeTab }}{% endif %}"
+                                                       tabindex="7">{{ translate(lang, 'buttons:start') }}</a>
+                                                </div>
+                                                <div class="col-xs-6">
+                                                    <a href="#" id="cancel-payment"
+                                                       class="btn btn-default btn-custom grey radius"
+                                                       role="button"
+                                                       data-transaction-type="{% if activeTab is empty %}pin{% else %}{{ activeTab }}{% endif %}"
+                                                       tabindex="8">{{ translate(lang, 'buttons:cancel') }}</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {{ csrf_input() }}
+                                </form>
+                            </div>
+                            <div class="col-md-8 col-sm-12 small-only-text-center payment-info-block">
+                                <div class="row">
+                                    <ul class="nav nav-tabs navbar-right" role="tablist">
+                                        <li role="presentation" {% if (activeTab == 'qr') %} class="active" {% endif %}>
+                                            <a data-toggle="tab" id="payment-type-qr-tab" href="#payment-type-qr" aria-controls="payment-type-qr">QR-code</a>
+                                        </li>
+                                        <li role="presentation" {% if (activeTab == 'scan') %} class="active" {% endif %}>
+                                            <a data-toggle="tab" id="payment-type-scan-tab" href="#payment-type-scan" aria-controls="payment-type-scan">Scan / Bar</a>
+                                        </li>
+                                        <li role="presentation" {% if (activeTab == 'pin' or activeTab is empty) %} class="active" {% endif %}>
+                                            <a data-toggle="tab" id="payment-type-pin-tab" href="#payment-type-pin" aria-controls="payment-type-pin"{% if terminalIDsAvailable == false %} disabled="disabled"{% endif %}>Pin</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="tab-content">
+                                    <div id="payment-type-qr" role="tabpanel" class="tab-pane fade {% if (activeTab == 'qr') %} in active {% endif %}">
+                                        <div class="row instore-loading flex-video">
+                                            <div class="col-xs-12 initContent">
+                                                {% if message is defined and message|length > 0 %}
+                                                    <div class="xs-vertical-margin-auto">
+                                                        <h4 class="pink-text">{{ translate(lang, 'startpin:validation_error:title') }}</h4>
+                                                        <p>{{ message }}</p>
+                                                    </div>
+                                                {% else %}
+                                                    <div id="startpin-action-error-qr"
+                                                         class="startpin-action-error xs-vertical-margin-auto "
+                                                         style="display: none;">
+                                                        <h4 class="pink-text">{{ translate(lang, 'startpin:validation_error:title') }}</h4>
+                                                        <p></p>
+                                                    </div>
+                                                    <div id="startpin-action-qr" class="startpin-action xs-vertical-margin-auto">
+                                                        <h4 class="green-text">{{ translate(lang, 'startpin:start_pins_action:title') }}</h4>
+                                                        <p>{{ translate(lang, 'startpin:start_pins_action:text') }}</p>
+                                                        <form action="#" onsubmit="return false;">
+                                                            <div class="form-group">
+                                                                <div class="row">
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                {% endif %}
+                                                <div id="qr-image-block" style="display: none">
+                                                    <img src="" id="qr_code" alt="">
+                                                    <div id="loading_block">
+                                                        <div class="status-icons">
+                                                            <img width="50" src="/img/loading-icon.gif" id="loading_gif" style="display:none; opacity: 0;" alt="">
+                                                            <img src="/img/app-icon.png" id="app_icon" style="display:none; opacity: 0;" alt="">
+                                                            <img src="/img/checkmark.gif" id="paid" style="display:none; opacity: 0;" alt="">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div id="load-qr" class="" style="display: none">
+                                                    <h2 class="loading-amount"><span class="amount-symbol">€ </span><span class="amount-count"></span><span class="amount-for"> {{ translate(lang, 'message:for:description') }} </span><span class="loading-text"></span></h2>
+                                                    <h4 class="alert-info loading-title">QR</h4>
+                                                    <div class="progress">
+                                                        <div class="progress-bar" role="progressbar" style="width: 0" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                </div>
+                                                <div id="qr-verify-buttons" class="row form-group row-transaction" style="display: none">
+                                                    <div class="col-xs-12">
+                                                        <div class="row">
+                                                            <div class="col-xs-1"></div>
+                                                            <div class="col-sm-4">
+                                                                <a href="#" id="qr-payment-approve" class="btn btn-custom btn-success radius" tabindex="9" data-uuid="">Approve</a>
+                                                            </div>
+                                                            <div class="col-sm-2"></div>
+                                                            <div class="col-sm-4">
+                                                                <a href="#" id="qr-payment-decline" class="btn btn-custom btn-danger radius" tabindex="10" data-uuid="">Decline</a>
+                                                            </div>
+                                                            <div class="col-xs-1"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                              </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="payment-type-scan" role="tabpanel" class="tab-pane fade {% if (activeTab == 'scan') %} in active {% endif %}">
+                                        <div class="row instore-loading flex-video">
+                                            <div class="col-xs-12 initContent">
+                                                <div id="scan-body">
+                                                    {% if message is defined and message|length > 0 %}
+                                                        <div class="xs-vertical-margin-auto">
+                                                            <h4 class="pink-text">{{ translate(lang, 'startpin:validation_error:title') }}</h4>
+                                                            <p>{{ message }}</p>
+                                                        </div>
+                                                    {% else %}
+                                                        <div id="startpin-action-error-scan"
+                                                             class="startpin-action-error xs-vertical-margin-auto "
+                                                             style="display: none;">
+                                                            <h4 class="pink-text">{{ translate(lang, 'startpin:validation_error:title') }}</h4>
+                                                            <p></p>
+                                                        </div>
+                                                        <div id="startpin-action-scan"
+                                                             class="startpin-action xs-vertical-margin-auto">
+                                                            <h4 class="green-text">{{ translate(lang, 'startpin:start_pins_action:title') }}</h4>
+                                                            <p>{{ translate(lang, 'startpin:start_pins_action:text') }}</p>
+                                                        </div>
+                                                        <form action="#" onsubmit="return false;">
+                                                            <div class="row">
+                                                                <div class="form-group col-sm-6" id="cardnumber-block">
+                                                                    <label for="cardnumber">{{ translate(lang, 'fields:cardnumber:label') }}</label>
+                                                                    <input type="text" id="cardnumber" name="cardnumber" inputmode="numeric"
+                                                                           onkeypress='return isKeyCodeDigitOrBackspace(event);'
+                                                                           minlength="16"
+                                                                           maxlength="24"
+                                                                           class="form-control" value="">
+                                                                </div>
+                                                                <div class="form-group col-sm-6" id="pincode-block" style="display: none;">
+                                                                    <label for="pincode">{{ translate(lang, 'fields:pincode:label')|raw }}</label>
+                                                                    <input type="password" id="pincode"
+                                                                           name="pincode" inputmode="numeric"
+                                                                           onkeypress='return isKeyCodeDigitOrBackspace(event);'
+                                                                           minlength="6"
+                                                                           maxlength="6" class="form-control"
+                                                                           value="">
+                                                                </div>
+                                                                <div class="col-sm-12 image-content">
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    {% endif %}
+                                                </div>
+                                                <div id="load-scan" class="hidden">
+                                                    <h2 class="loading-amount"><span class="amount-symbol">€ </span><span class="amount-count"></span><span class="amount-for"> {{ translate(lang, 'message:for:description') }} </span><span class="loading-text"></span></h2>
+                                                    <h4 class="alert-info loading-title"></h4>
+                                                    <div class="progress">
+                                                        <div class="progress-bar" role="progressbar" style="width: 0" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="image-block" style="display: none;">
+                                                    <img src="" alt="">
+                                                </div>
+                                                <div id="scan-verify-buttons" class="row form-group row-transaction" style="display: none">
+                                                    <div class="col-xs-12">
+                                                        <div class="row">
+                                                            <div class="col-xs-1"></div>
+                                                            <div class="col-sm-4">
+                                                                <a href="#" id="scan-payment-approve" class="btn btn-custom btn-success radius" tabindex="9" data-uuid="">Approve</a>
+                                                            </div>
+                                                            <div class="col-sm-2"></div>
+                                                            <div class="col-sm-4">
+                                                                <a href="#" id="scan-payment-decline" class="btn btn-custom btn-danger radius" tabindex="10" data-uuid="">Decline</a>
+                                                            </div>
+                                                            <div class="col-xs-1"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="balance-block" style="display: none;">
+                                                    <h3 id="balance">
+                                                        <span class="balance-title">{{ translate(lang, 'startpin:scan-balance-title:message')|raw }}: €</span>
+                                                        <span class="balance-amount">{{ translate(lang, 'startpin:scan-balance-title:message')|raw }}</span>
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="payment-type-pin" role="tabpanel" class="tab-pane fade {% if (activeTab == 'pin') or activeTab is empty %} in active {% endif %}">
+                                        <div class="row instore-loading flex-video">
+                                            <div class="col-xs-12 initContent">
+                                                {% if message is defined and message|length > 0 %}
+                                                    <div class="xs-vertical-margin-auto">
+                                                        <h4 class="pink-text">{{ translate(lang, 'startpin:validation_error:title') }}</h4>
+                                                        <p>{{ message }}</p>
+                                                    </div>
+                                                {% else %}
+                                                    <div id="startpin-action-error"
+                                                         class="startpin-action-error xs-vertical-margin-auto "
+                                                         style="display: none;">
+                                                        <h4 class="pink-text">{{ translate(lang, 'startpin:validation_error:title') }}</h4>
+                                                        <p></p>
+                                                    </div>
+                                                    <div id="startpin-action"
+                                                         class="startpin-action xs-vertical-margin-auto">
+                                                        <h4 class="green-text">{{ translate(lang, 'startpin:start_pins_action:title') }}</h4>
+                                                        <p>
+                                                            {{ translate(lang, 'startpin:start_pins_action:text') }}
+                                                        </p>
+                                                    </div>
+                                                    <div id="startpin-payment-progress" class="xs-vertical-margin-auto"
+                                                         style="display: none;">
+                                                        <div id="bannertext">
+                                                            <h1 id="payment-amount">€ <span></span></h1><br/>
+                                                            <div id="payment-progress" class="row">
+                                                                <div class="col-sm-12 no-paddings">
+                                                                    <div id="statustext" class="progress-text text-center">
+                                                                        <h4 class="status-init"></h4>
+                                                                    </div>
+                                                                    <div class="progress">
+                                                                        <div id="progress" class="progress-bar"
+                                                                             role="progressbar"
+                                                                             aria-valuenow="0"
+                                                                             aria-valuemin="0" aria-valuemax="100"
+                                                                             style="width: 0;">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <h3><strong id="startpin-description"></strong><br><span
+                                                                    id="startpin-transaction-id"></span></h3>
+                                                            <div id="pin-verify-buttons" class="row form-group row-transaction" style="display: none">
+                                                                <div class="col-xs-12">
+                                                                    <div class="row">
+                                                                        <div class="col-xs-1"></div>
+                                                                        <div class="col-sm-4">
+                                                                            <a href="#" id="pin-payment-approve" class="btn btn-custom btn-success radius" tabindex="9" data-uuid="">Approve</a>
+                                                                        </div>
+                                                                        <div class="col-sm-2"></div>
+                                                                        <div class="col-sm-4">
+                                                                            <a href="#" id="pin-payment-decline" class="btn btn-custom btn-danger radius" tabindex="10" data-uuid="">Decline</a>
+                                                                        </div>
+                                                                        <div class="col-xs-1"></div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div id="confirmBox" class="row well" style="display: none">
+                                                                <form id="confirmForm" class="form-inline" action="">
+                                                                    <p>{{ translate(lang, 'startpin:confirm_box:confirm_send_ticket')|raw }}</p>
+                                                                    <div id="confirmBoxResult" class="status"></div>
+                                                                    <div class="row confirmBoxHide">
+                                                                        <div class="input-group">
+                                                                            <span class="input-group-addon">
+                                                                              <input type="checkbox" name="doEmailTicket" value="1">
+                                                                            </span>
+                                                                            <input type="email" name="email"
+                                                                                   class="form-control" id="emailInput"
+                                                                                   placeholder="{{ translate(lang, 'startpin:confirm_box:email_placeholder') }}"
+                                                                                   onfocus="unsetConfirmError();"
+                                                                                   disabled="disabled">
+                                                                            <select name="language" class="selectpicker" disabled="disabled">
+                                                                                <option value="1" data-content="<img src='/img/countries/language_nl.png'> NL">NL</option>
+                                                                                <option value="4" data-content="<img src='/img/countries/language_en.png'> EN">EN</option>
+                                                                            </select>
+                                                                        </div>
+                                                                        <div class="input-group mobile-paddings">
+                                                                            <button onclick="return confirmPayment(event);" class="btn btn-default" name="btnConfirmPayment" disabled="disabled">{{ translate(lang, 'startpin:confirm_box:button_send') }}</button>
+                                                                            <button type="button" class="btn btn-primary ml-4" data-toggle="modal" data-target="#print-receipt-modal">{{ translate(lang, 'startpin:confirm_box:button_print_receipt') }}</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="startpin-footer row">
+                            <div class="text-part">
+                                <p>{{ translate(lang, 'startpin:product:message')|raw }} </p>
+                                <a href="//pay.nl"><img src="/img/logo.png" width="24" alt=""></a>
+                            </div>
+                        </div>
+                    </section>
+                </section>
+                <div class="startpin-image-urls hidden">
+                    <img id="scan-card-image" src="https://static.pay.nl/payment_profiles/50x50/1645.png" alt="">
+                </div>
+                <div class="startpin-scan-success-message hidden">{{ translate(lang, 'startpin:scan-success:message')|raw }}</div>
+                <div class="startpin-scan-pending-message hidden">{{ translate(lang, 'startpin:scan-pending:message')|raw }}</div>
+                <div class="startpin-scan-error-message hidden">{{ translate(lang, 'startpin:scan-error:message')|raw }}</div>
+                <div class="startpin-scan-invalid-balance-message hidden">{{ translate(lang, 'startpin:scan-invalid-balance:message')|raw }}</div>
+                <div class="startpin-scan-pincode-error hidden">{{ translate(lang, 'startpin:scan-pincode:error')|raw }}</div>
+                <div class="startpin-scan-cancel-message hidden">{{ translate(lang, 'startpin:scan-cancel:error')|raw }}</div>
+
+                <div class="startpin-qr-error-message hidden">{{ translate(lang, 'startpin:qr-error:message')|raw }}</div>
+                <div class="startpin-qr-pending-message hidden">{{ translate(lang, 'startpin:qr-pending:message')|raw }}</div>
+                <div class="startpin-qr-success-message hidden">{{ translate(lang, 'startpin:qr-success:message')|raw }}</div>
+                <div class="startpin-qr-cancel-message hidden">{{ translate(lang, 'api_response:status_cancelled')|raw }}</div>
+
+                <div class="startpin-validation-error-title hidden"><h4 class="pink-text">{{ translate(lang, 'startpin:validation_error:title')|raw }}</h4></div>
+                <div class="startpin-service_match-validation-error hidden">{{ translate(lang, 'fields:service_match:validation_error')|raw }}</div>
+
+                <div class="startpin-cardnumber-validation-error hidden">{{ translate(lang, 'fields:cardnumber:validation_error')|raw }}</div>
+                <div class="startpin-cardnumber-label hidden">{{ translate(lang, 'fields:cardnumber:label')|raw }}</div>
+
+                <div class="startpin-amount-validation-error hidden">{{ translate(lang, 'fields:amount:validation_error')|raw }}</div>
+                <div class="startpin-description-validation-error hidden">{{ translate(lang, 'fields:description:validation_error')|raw }}</div>
+                <div class="startpin-order_number-validation-error hidden">{{ translate(lang, 'fields:order_number:validation_error')|raw }}</div>
+                <div class="startpin-api-token-validation-error hidden">{{ translate(lang, 'fields:api_token:validation_error')|raw }}</div>
+                <div class="startpin-service-id-validation-error hidden">{{ translate(lang, 'fields:service_id:validation_error')|raw }}</div>
+                <div class="startpin-terminal-id-validation-error hidden">{{ translate(lang, 'fields:terminal_id:validation_error')|raw }}</div>
+                <div class="startpin-ip-address-validation-error hidden">{{ translate(lang, 'fields:ip_address:validation_error')|raw }}</div>
+                <div class="startpin-start-new-transaction-text hidden"><h4 class="pink-text">{{ translate(lang, 'startpin:start_pins_action:title')|raw }}</h4>
+                    <p>{{ translate(lang, 'startpin:start_new_transaction:text')|raw }}</p></div>
+                <div class="startpin-error-could-not-start-transaction hidden">{{ translate(lang, 'error:could_not_start_transaction')|raw }}</div>
+                <div class="startpin-error-could-not-find-service hidden">{{ translate(lang, 'error:could_not_find_service')|raw }}</div>
+                <div class="startpin-error-could-not-find-terminal hidden">{{ translate(lang, 'error:could_not_find_terminal')|raw }}</div>
+                <div class="startpin-error-terminal-in-use hidden">{{ translate(lang, 'error:terminal_in_use')|raw }}</div>
+                <div class="startpin-qr-scanned-status hidden">{{ translate(lang, 'startpin:qr-scanned-status:message')|raw }}</div>
+                <div class="startpin-qr-confirmed-status hidden">{{ translate(lang, 'startpin:qr-confirmed-status:message')|raw }}</div>
+                <div class="startpin-transaction-status-verify hidden">{{ translate(lang, 'api_response:status_verify')|raw }}</div>
+                <div class="startpin-transaction-status-expired hidden">{{ translate(lang, 'api_response:status_expired')|raw }}</div>
+            </div>
+        </section>
+    </div>
+
+    <div id="print-receipt-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <iframe src="about:blank" title="Receipt" aria-hidden="true" width="100%" height="500px" id="print-receipt" name="print-frame" frameborder="0"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

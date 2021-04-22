@@ -1,0 +1,25 @@
+common:
+  base_url: "%BASE_URL_ADDRESS%"
+
+  ######################
+  # Script Execution Options
+  ######################
+
+  time_limit: 600 #sec
+  display_errors: 0
+  error_reporting_level: 32767 # E_ALL (can be calculated by http://www.bx.com.au/tools/ultimate-php-error-reporting-wizard)
+  root_path: "%root_path%/"
+  views_path: "%src_path%/Views/"
+  page_404_path: '%src_path%/StaticPages/404.html'
+  temp_path: "%root_path%/temp/"
+  files_path: "%root_path%/public/files/"
+  session:
+    cookie_lifetime: "%SESSION_COOKIE_LIFETIME%"
+    gc_maxlifetime: "%SESSION_GC_MAXLIFETIME%"
+  cookie:
+    lifetime: "%COOKIE_LIFETIME%"
+    secure: "%MAKE_COOKIES_SECURE%"
+    encryption_key: "%COOKIE_ENCRYPTION_KEY%"
+  csrf:
+    active: 0
+    token_lifetime: "%CSRF_TOKEN_LIFE_TIME%"

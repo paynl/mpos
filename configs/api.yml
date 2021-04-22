@@ -1,0 +1,21 @@
+api:
+    startpin:
+        apiUrl: "%BASE_API_URL%"
+        getServices: "%BASE_API_URL%/v1/Service/getAll/json"
+        getTerminals: "%BASE_API_URL%/v1/Instore/getAllTerminals/json"
+        payment: "%BASE_API_URL%/v1/Instore/payment/json"
+        confirmPayment: "%BASE_API_URL%/v1/Instore/confirmPayment/jsonp"
+        safe_pay_nl_api_status: "%SAFE_PAY_NL_URL%/api/status/"
+        start: "%BASE_API_URL%/v7/Transaction/start/json"
+        finishUrl: "%PAY_NL_FRONTEND_URL%/demo_ppt/finish_url"
+        paymentHttp: "%BASE_API_URL%/v1/Instore/payment/json"
+        confirmPaymentHttp: "%BASE_API_URL%/v1/Instore/confirmPayment/jsonp"
+        qrPayment: "%BASE_API_URL%/v13/Transaction/QRpayment/json"
+        return_url: "%SAFE_PAY_NL_URL%/complete/"
+        qr_pay_nl_url: "%QR_PAY_NL_URL%"
+    voucher:
+        info: "%BASE_API_URL%/v1/Voucher/info/json"
+        transaction: "%BASE_API_URL%/v2/Voucher/transaction/json"
+    auth:
+      token_code: "%AUTH_TOKEN_CODE%"
+

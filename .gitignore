@@ -1,0 +1,10 @@
+.idea
+.env
+vendor/
+docker-compose.yml
+access.log
+error.log
+public/libs/bootstrap/*
+public/libs/select2/*
+cghooks.lock
+/var/www/html/cghooks.lock

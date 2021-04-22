@@ -1,0 +1,13 @@
+{
+  "name": "Pay.nl pinapplicatie",
+  "short_name": "Pinapplicatie",
+  "icons": [
+    {
+      "src": "/images/manifests/startpin192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "density": 4.0
+    }
+  ],
+  "display": "standalone"
+}

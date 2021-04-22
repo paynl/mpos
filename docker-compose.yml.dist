@@ -1,0 +1,16 @@
+version: "3.2"
+services:
+  mpos-apache-php-container:
+    build: docker/apache-php
+    container_name: mpos-apache-php-container
+    volumes:
+      - .:/var/www/html/
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - backend
+    extra_hosts:
+     - "mpos.test:127.0.0.1"
+networks:
+  backend:
