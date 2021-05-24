@@ -161,7 +161,7 @@ if (window.history.replaceState) {
 jQuery.fn.myStripTags = function () {
     let self = jQuery(this).val();
     // controleer of er een value bekend is
-    if (typeof self !== 'undefined' && self.length > 0) {
+    if (typeof self !== 'undefined' && self !== null && self.length > 0) {
         jQuery(this).val(self.replace(/(<([^>]+)>)/ig, ""));
     }
 
@@ -1067,7 +1067,7 @@ function validateApiToken() {
  * @returns {Boolean}
  */
 function validateTerminalId() {
-    if (strTerminalId.length == 12) {
+    if (strTerminalId !== null && strTerminalId.length == 12) {
         return true;
     }
 

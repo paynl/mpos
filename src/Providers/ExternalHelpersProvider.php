@@ -99,6 +99,23 @@ class ExternalHelpersProvider extends AbstractServiceProvider
             );
             $twig->addFunction($csrfInputFunction);
 
+            $assetVersion = new TwigFunction(
+                'assetVersion',
+                function (string $filePath) use ($container) {
+                    $serverRequest = $container->get('request');
+                    $serverParams = $serverRequest->getServerParams();
+                    if (!empty($serverParams['DOCUMENT_ROOT'])) {
+                        $fullPath = $serverParams['DOCUMENT_ROOT'] . $filePath;
+                        if (file_exists($fullPath)) {
+                            return filemtime($fullPath) . filesize($fullPath);
+                        }
+                    }
+
+                    return '';
+                }
+            );
+            $twig->addFunction($assetVersion);
+
             return $twig;
         });
     }
