@@ -58,6 +58,7 @@ return [
     'fields:description:validation_error' => 'Invalid description',
     'fields:service_id:validation_error' => 'The selected service is invalid',
     'fields:terminal_id:validation_error' => 'An invalid terminal has been selected',
+    'fields:terminal_id:empty_field' => 'Terminal id is empty.',
     'fields:ip_address:validation_error' => 'Invalid IP address',
     'error:could_not_start_transaction' => 'An error occurred while starting a payment',
     'error:could_not_approve_transaction' => 'The transaction cannot be approved',

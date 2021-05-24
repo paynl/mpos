@@ -58,6 +58,7 @@ return [
     'fields:description:validation_error' => '',
     'fields:service_id:validation_error' => 'U heeft een ongeldige service / dienst geselecteerd.',
     'fields:terminal_id:validation_error' => 'U heeft een ongeldige terminal geselecteerd.',
+    'fields:terminal_id:empty_field' => 'Terminal ID is leeg.',
     'fields:ip_address:validation_error' => 'Ongeldig ip adres.',
     'error:could_not_start_transaction' => 'Er is een fout opgetreden bij het starten van de betaling',
     'error:could_not_approve_transaction' => 'Kan de transactie niet goedkeuren',

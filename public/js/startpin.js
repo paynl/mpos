@@ -988,7 +988,11 @@ function validateInputVars(callback) {
     }
 
     if (false === validateTerminalId() && isTransactionTypePIN()) {
-        errorMessage = jQuery('.startpin-terminal-id-validation-error').html();
+        if (strTerminalId === null) {
+            errorMessage = jQuery('.startpin-terminal-id-is-empty-error').html();
+        } else {
+            errorMessage = jQuery('.startpin-terminal-id-validation-error').html();
+        }
         showErrorMessage(errorMessage);
 
         return false;
