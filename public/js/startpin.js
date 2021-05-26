@@ -161,7 +161,7 @@ if (window.history.replaceState) {
 jQuery.fn.myStripTags = function () {
     let self = jQuery(this).val();
     // controleer of er een value bekend is
-    if (typeof self !== 'undefined' && self.length > 0) {
+    if (typeof self !== 'undefined' && self !== null && self.length > 0) {
         jQuery(this).val(self.replace(/(<([^>]+)>)/ig, ""));
     }
 
@@ -988,7 +988,11 @@ function validateInputVars(callback) {
     }
 
     if (false === validateTerminalId() && isTransactionTypePIN()) {
-        errorMessage = jQuery('.startpin-terminal-id-validation-error').html();
+        if (strTerminalId === null) {
+            errorMessage = jQuery('.startpin-terminal-id-is-empty-error').html();
+        } else {
+            errorMessage = jQuery('.startpin-terminal-id-validation-error').html();
+        }
         showErrorMessage(errorMessage);
 
         return false;
@@ -1067,7 +1071,7 @@ function validateApiToken() {
  * @returns {Boolean}
  */
 function validateTerminalId() {
-    if (strTerminalId.length == 12) {
+    if (strTerminalId !== null && strTerminalId.length == 12) {
         return true;
     }
 

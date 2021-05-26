@@ -8,7 +8,7 @@
         <link rel="stylesheet" href="/libs/bootstrap/css/bootstrap-select.css"/>
         <link rel="stylesheet" href="/libs/select2/css/select2.min.css"/>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css" rel="stylesheet"/>
-        <link rel="stylesheet" href="/css/startpin.css"/>
+        <link rel="stylesheet" href="/css/startpin.css?v={{ assetVersion('/css/startpin.css') }}"/>
         <title>{% block title %}{% endblock %}</title>
     {% endblock %}
     {{ csrf_header() }}
@@ -28,6 +28,6 @@
 <script src="/libs/js/currency.js"></script>
 <script src="/libs/js/js.cookie.js"></script>
 <script src="/libs/printJS/print.min.js"></script>
-<script src="/js/startpin.js?v3"></script>
+<script src="/js/startpin.js?v={{ assetVersion('/js/startpin.js') }}"></script>
 </body>
 </html>
