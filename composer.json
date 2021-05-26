@@ -62,6 +62,7 @@
     "cghooks": "cghooks",
     "post-install-cmd": [
       "php scripts/composerMoveAssets.php",
+      "MPOS\\Utility\\ComposerScripts::devModeOnly",
       "cghooks add --ignore-lock"
     ],
     "post-update-cmd": "cghooks update"
