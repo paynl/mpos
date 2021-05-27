@@ -1,6 +1,6 @@
 parameters:
   excludes_analyse:
     - %rootDir%/../../../src/Models/
-    - %rootDir%/../../../src/Utility/
+    - %rootDir%/../../../src/Scripts/
 includes:
   - vendor/thecodingmachine/phpstan-strict-rules/phpstan-strict-rules.neon
