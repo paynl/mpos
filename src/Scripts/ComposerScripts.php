@@ -1,5 +1,5 @@
 <?php
-namespace MPOS\Utility;
+namespace MPOS\Scripts;
 
 use Composer\Script\Event;
 

@@ -59,9 +59,12 @@
     "fix": "phpcbf ./src --standard=PSR2",
     "cghooks": "cghooks",
     "post-install-cmd": [
-      "MPOS\\Utility\\ComposerScripts::devModeOnly",
+      "MPOS\\Scripts\\ComposerScripts::devModeOnly",
       "cghooks add --ignore-lock"
     ],
-    "post-update-cmd": "cghooks update"
+    "post-update-cmd": [
+      "MPOS\\Scripts\\ComposerScripts::devModeOnly",
+      "cghooks update"
+    ]
   }
 }

@@ -14,10 +14,12 @@ class SecureHeadersMiddleware implements MiddlewareInterface
     const SECURE_HEADERS_CONFIG = 'vendor/bepsvpt/secure-headers/config/secure-headers.php';
 
     const UNWANTED_HEADER_LIST = [
-        // Headers that are not secure
         'X-Powered-By',
         'Server',
-        // Headers that are unfamiliar for Chrome's desktop version
+    ];
+
+    // Headers that are unfamiliar for Chrome's desktop version
+    const UNSUPPORTED_HEADER_LIST = [
         'Permissions-Policy'
     ];
 
@@ -46,7 +48,7 @@ class SecureHeadersMiddleware implements MiddlewareInterface
         $secureHeaders = SecureHeaders::fromFile($secureHeadersConfig)->headers();
         $response = $handler->handle($request);
         foreach ($secureHeaders as $header => $value) {
-            if (in_array($header, self::UNWANTED_HEADER_LIST)) {
+            if (in_array($header, self::UNSUPPORTED_HEADER_LIST)) {
                 continue;
             }
 
