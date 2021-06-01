@@ -64,10 +64,22 @@ class CookieHelper
         setcookie($cookieName, $value, $expiry, self::COOKIE_PATH, $this->host, $secure, $httpOnly);
     }
 
-    public function deleteCookie(string $cookieName): void
+    /**
+     * @param string $httpCookieString
+     * @param string[] $cookiesToDelete
+     */
+    public function deleteCookies(string $httpCookieString, array $cookiesToDelete): void
     {
-        setcookie($cookieName, '', time() - 3600);
-        setcookie($cookieName, '', time() - 3600, self::COOKIE_PATH, $this->host);
+        $cookies = explode(';', $httpCookieString);
+        foreach ($cookies as $cookie) {
+            $parts = explode('=', $cookie);
+            $name = trim($parts[0]);
+            if (in_array($name, $cookiesToDelete)) {
+                setcookie($name, '', time() - 3600);
+                setcookie($name, '', time() - 3600, self::COOKIE_PATH);
+                setcookie($name, '', time() - 3600, self::COOKIE_PATH, $this->host);
+            }
+        }
     }
 
     /**

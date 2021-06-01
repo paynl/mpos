@@ -187,6 +187,11 @@ class IndexController extends BaseController
 
         $host = $request->getUri()->getHost();
 
+        $serverParams = $request->getServerParams();
+        $cookiesFromRequest = $serverParams['HTTP_COOKIE'] ?? '';
+
+        $this->deleteAllCookiesForHost($host, $cookiesFromRequest);
+
         $this->cookieHelper->setHost($host);
         // Store not secure data to cookies
         $this->cookieHelper->saveCookieValue(self::DESCRIPTION, $postedData[self::DESCRIPTION]);
@@ -211,19 +216,32 @@ class IndexController extends BaseController
     public function clearFormData(ServerRequestInterface $request): Response
     {
         $host = $request->getUri()->getHost();
+        $serverParams = $request->getServerParams();
 
-        $this->cookieHelper->setHost($host);
-        $this->cookieHelper->deleteCookie(self::DESCRIPTION);
-        $this->cookieHelper->deleteCookie(self::ORDER_NUMBER);
-        $this->cookieHelper->deleteCookie(self::API_TOKEN);
-        $this->cookieHelper->deleteCookie(self::SERVICE_ID);
-        $this->cookieHelper->deleteCookie(self::DEFAULT_TERMINAL_ID);
-        $this->cookieHelper->deleteCookie(self::TOGGLE);
-        $this->cookieHelper->deleteCookie(self::STATIC_FIELDS);
-        $this->cookieHelper->deleteCookie(self::AMOUNT);
+        $cookiesFromRequest = $serverParams['HTTP_COOKIE'] ?? '';
+
+        $this->deleteAllCookiesForHost($host, $cookiesFromRequest);
 
         // 200 ok with blank response
         return $this->response('');
+    }
+
+    private function deleteAllCookiesForHost(string $host, string $cookiesFromRequest): void
+    {
+        $this->cookieHelper->setHost($host);
+
+        $cookiesToDelete = [
+            self::DESCRIPTION,
+            self::ORDER_NUMBER,
+            self::TOGGLE,
+            self::STATIC_FIELDS,
+            self::AMOUNT,
+            self::API_TOKEN,
+            self::SERVICE_ID,
+            self::DEFAULT_TERMINAL_ID
+        ];
+
+        $this->cookieHelper->deleteCookies($cookiesFromRequest, $cookiesToDelete);
     }
 
     private function formatAmount(string $rawAmount): float
