@@ -18,6 +18,11 @@ class SecureHeadersMiddleware implements MiddlewareInterface
         'Server',
     ];
 
+    // Headers that are unfamiliar for Chrome's desktop version
+    const UNSUPPORTED_HEADER_LIST = [
+        'Permissions-Policy'
+    ];
+
     /** @var ConfigHelper */
     private $config;
 
@@ -43,6 +48,10 @@ class SecureHeadersMiddleware implements MiddlewareInterface
         $secureHeaders = SecureHeaders::fromFile($secureHeadersConfig)->headers();
         $response = $handler->handle($request);
         foreach ($secureHeaders as $header => $value) {
+            if (in_array($header, self::UNSUPPORTED_HEADER_LIST)) {
+                continue;
+            }
+
             $response = $response->withHeader($header, $value);
         }
 

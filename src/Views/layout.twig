@@ -5,9 +5,9 @@
     {% block head %}
         <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
         <link rel="stylesheet" href="/libs/bootstrap/css/bootstrap.min.css"/>
-        <link rel="stylesheet" href="/libs/bootstrap/css/bootstrap-select.css"/>
+        <link rel="stylesheet" href="/libs/bootstrap/css/bootstrap-select.min.css"/>
         <link rel="stylesheet" href="/libs/select2/css/select2.min.css"/>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css" rel="stylesheet"/>
+        <link rel="stylesheet" href="/libs/select2/css/select-theme.min.css"/>
         <link rel="stylesheet" href="/css/startpin.css?v={{ assetVersion('/css/startpin.css') }}"/>
         <title>{% block title %}{% endblock %}</title>
     {% endblock %}
@@ -23,10 +23,10 @@
 </div>
 <script src="/libs/jquery/jquery.min.js"></script>
 <script src="/libs/bootstrap/js/bootstrap.min.js"></script>
-<script src="/libs/bootstrap/js/bootstrap-select.js"></script>
+<script src="/libs/bootstrap/js/bootstrap-select.min.js"></script>
 <script type="text/javascript" src="/libs/select2/js/select2.js"></script>
-<script src="/libs/js/currency.js"></script>
-<script src="/libs/js/js.cookie.js"></script>
+<script src="/libs/currency.js"></script>
+<script src="/libs/js.cookie.js"></script>
 <script src="/libs/printJS/print.min.js"></script>
 <script src="/js/startpin.js?v={{ assetVersion('/js/startpin.js') }}"></script>
 </body>
