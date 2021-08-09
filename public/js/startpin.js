@@ -726,6 +726,8 @@ function handleStartScanTransaction(data) {
             showErrorMessage(message);
             setScanErrorBar(message);
             enableStartAndDisableCancelButtons();
+            enableCardNumberField();
+            enablePINCodeField();
 
             return;
         }
