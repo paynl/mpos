@@ -2,8 +2,6 @@
 
 namespace MPOS\Helpers;
 
-use Curl\Curl;
-use ErrorException;
 use Laminas\Http\PhpEnvironment\RemoteAddress;
 use MPOS\Enums\PayAPIFieldEnum;
 use MPOS\Enums\PayAPIResultEnum;
@@ -12,15 +10,14 @@ use MPOS\Exceptions\CurlException;
 use MPOS\Exceptions\FormValidationException;
 use MPOS\Exceptions\GiftCardValidationException;
 use MPOS\Exceptions\MPOSException;
+use MPOS\ValueObjects\QrStartValueObject;
 use MPOS\ValueObjects\StartpinConfirmPaymentValueObject;
 use MPOS\ValueObjects\StartpinPaymentValueObject;
 use MPOS\ValueObjects\StartpinStartValueObject;
 use MPOS\ValueObjects\TransactionValueObject;
 use Paynl\Config;
 use Paynl\Error\Error;
-use Paynl\QR\UUID;
 use Paynl\Transaction;
-use Paynl\QR\Error\Error as QrError;
 use Psr\Http\Message\ServerRequestInterface;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -217,85 +214,38 @@ class ApiHelper
     /**
      * @param ServerRequestInterface $request
      * @return string
-     * @throws ConfigException
-     * @throws QrError
      */
     public function getQRCode(ServerRequestInterface $request): string
     {
-        $arrData = (array)$request->getParsedBody();
-        $gateway = $this->config->get('api.startpin.apiUrl');
-        $arrData['gateway'] = $gateway;
-
-        if (!empty($gateway)) {
-            Config::setApiBase($gateway);
-        }
-
-        Config::setTokenCode('token');
-        Config::setApiToken($arrData['api_token']);
-        Config::setServiceId($arrData['service_id']);
-
         try {
-            $arrData['returnUrl'] = $this->config->get('api.startpin.return_url');
-            $transaction = Transaction::start($arrData);
+            $requestData = (array)$request->getParsedBody();
 
-            $transactionData = $transaction->getData();
+            $finishUrl = $this->config->get('api.startpin.return_url');
+            $startTransactionApiUrl = $this->config->get('api.startpin.qr_start');
 
-            /** @var Curl $curl */
-            $curl = Config::getCurl();
-            $curlInfo = curl_getinfo($curl->curl);
+            $ip = (string)filter_var($this->remoteAddress->getIpAddress(), FILTER_VALIDATE_IP);
+            $startpinStartValueObject = new QrStartValueObject($requestData, $ip, $finishUrl);
 
-            $result = array();
-            $result['transactionId'] = $transaction->getTransactionId();
-            $result['redirectUrl'] = $transaction->getRedirectUrl();
-            $result['entranceCode'] = '';
-            $result['paymentReference'] = $transaction->getPaymentReference();
-            $result['rawData'] = json_encode($transactionData);
-            $result['responseTime'] = $curlInfo['total_time'];
-            $result['hash'] = $transactionData['terminal']['hash'] ?? null;
+            $dataForCallToApi = $startpinStartValueObject->getDataForTransactionStart();
+            $token = $startpinStartValueObject->getToken();
+            $transaction = json_decode(
+                $this->curlHelper->post($startTransactionApiUrl, $dataForCallToApi, $token),
+                true
+            );
 
-            if (isset($arrData['paymentMethod']) && $arrData['paymentMethod'] == 1927) {
-                $instoreTransaction = \Paynl\Instore::status(['hash' => $result['hash']]);
-                $result['instoreTransactionData'] = $instoreTransaction->getData();
-                $result['instoreTransactionStatus'] = $instoreTransaction->getTransactionState();
-                $result['terminalStatus'] = $instoreTransaction->getTerminalState();
-                $result['percentage'] = $result['instoreTransactionData']['progress']['percentage'];
-                $result['percentagePerSecond'] = $result['instoreTransactionData']['progress']['percentage_per_second'];
-            }
+            $transactionData = $transaction['transaction'];
 
-            $arrUrl = explode('/', $result['redirectUrl']);
-
-            foreach ($arrUrl as $segment) {
-                if (preg_match('/^[a-f0-9]{40}$/i', $segment)) {
-                    $result['entranceCode'] = $segment;
-                }
-            }
-
-            if (empty($result['entranceCode'])) {
-                $url = (string)parse_url($result['redirectUrl'], PHP_URL_QUERY);
-                parse_str($url, $arrUrl);
-                if (isset($arrUrl['entranceCode'])) {
-                    $result['entranceCode'] = $arrUrl['entranceCode'];
-                }
-            }
-            if (!empty($result['transactionId'])
-                && !empty($result['entranceCode'])
-                && empty($arrData['paymentMethod'])) {
-                $result['uuid'] = UUID::encode(UUID::QR_TYPE_TRANSACTION, [
-                    'orderId' => $result['transactionId'],
-                    'entranceCode' => $result['entranceCode']
-                ]);
-
+            if (!empty($transactionData['transactionId']) && !empty($transactionData['uuid'])) {
                 $qrPayNlUrl = sprintf('%s/', rtrim($this->config->get('api.startpin.qr_pay_nl_url'), '/'));
-                $result['qr_url'] = $qrPayNlUrl . $result['uuid'];
                 $parameters = http_build_query([
                     'no-logo' => 1,
-                    'payload' => $result['qr_url']
+                    'payload' => $qrPayNlUrl . $transactionData['uuid']
                 ]);
-                $result['generated_qr_url'] = sprintf('%sqr?%s', $qrPayNlUrl, $parameters);
+                $transactionData['generated_qr_url'] = sprintf('%sqr?%s', $qrPayNlUrl, $parameters);
             }
 
-            return $this->jsonData($result);
-        } catch (Error | ErrorException $e) {
+            return $this->jsonData($transactionData);
+        } catch (MPOSException $e) {
             return $this->jsonData(['error' => $e->getMessage()]);
         }
     }
@@ -419,11 +369,13 @@ class ApiHelper
         try {
             $postedData = (array)$request->getParsedBody();
 
-            $ip = (string)filter_var($this->remoteAddress->getIpAddress(), FILTER_VALIDATE_IP);
-            $startpinStartValueObject = new StartpinStartValueObject($postedData, $ip);
-
+            $finishUrl = $this->config->get('api.startpin.finishUrl');
             $startTransactionApiUrl = $this->config->get('api.startpin.start');
-            $dataForCallToApi = $this->prepareDataForStartTrx($startpinStartValueObject);
+
+            $ip = (string)filter_var($this->remoteAddress->getIpAddress(), FILTER_VALIDATE_IP);
+            $startpinStartValueObject = new StartpinStartValueObject($postedData, $ip, $finishUrl);
+
+            $dataForCallToApi = $startpinStartValueObject->getDataForTransactionStart();
             $token = $startpinStartValueObject->getToken();
 
             return $this->curlHelper->post($startTransactionApiUrl, $dataForCallToApi, $token);
@@ -443,42 +395,6 @@ class ApiHelper
                 'message' => $exception->getMessage(),
             ]);
         }
-    }
-
-    /**
-     * @param StartpinStartValueObject $startpinStartValueObject
-     * @return mixed[]
-     * @throws ConfigException
-     */
-    private function prepareDataForStartTrx(StartpinStartValueObject $startpinStartValueObject): array
-    {
-        $startTrxData = [];
-        $startTrxData['serviceId'] = $startpinStartValueObject->getServiceId();
-        $startTrxData['amount'] = $startpinStartValueObject->getAmount();
-        $startTrxData['ipAddress'] = $startpinStartValueObject->getIpAddress();
-        $startTrxData['finishUrl'] = $this->config->get('api.startpin.finishUrl');
-
-        if (!empty($startpinStartValueObject->getPaymentOptionId())) {
-            $startTrxData['paymentOptionId'] = $startpinStartValueObject->getPaymentOptionId();
-        }
-
-        if (!empty($startpinStartValueObject->getTerminalId())) {
-            $startTrxData['paymentOptionSubId'] = $startpinStartValueObject->getTerminalId();
-        }
-
-        if (!empty($startpinStartValueObject->getDescription())) {
-            $startTrxData['transaction']['description'] = $startpinStartValueObject->getDescription();
-        }
-
-        if (!empty($startpinStartValueObject->getOrderNumber())) {
-            $startTrxData['transaction']['orderNumber'] = $startpinStartValueObject->getOrderNumber();
-        }
-
-        if (!empty($startpinStartValueObject->getLanguage())) {
-            $startTrxData['enduser']['language'] = $startpinStartValueObject->getLanguage();
-        }
-
-        return $startTrxData;
     }
 
     /**

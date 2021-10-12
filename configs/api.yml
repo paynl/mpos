@@ -7,6 +7,7 @@ api:
         confirmPayment: "%BASE_API_URL%/v1/Instore/confirmPayment/jsonp"
         safe_pay_nl_api_status: "%SAFE_PAY_NL_URL%/api/status/"
         start: "%BASE_API_URL%/v7/Transaction/start/json"
+        qr_start: "%BASE_API_URL%/v17/Transaction/start/json"
         finishUrl: "%PAY_NL_FRONTEND_URL%/demo_ppt/finish_url"
         paymentHttp: "%BASE_API_URL%/v1/Instore/payment/json"
         confirmPaymentHttp: "%BASE_API_URL%/v1/Instore/confirmPayment/jsonp"
